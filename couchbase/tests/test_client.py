@@ -31,12 +31,14 @@ class ClientTest(unittest.TestCase):
         self.port = config['node-1']['port']
         self.username = config['node-1']['username']
         self.password = config['node-1']['password']
+        self.cb = None
 
     def tearDown(self):
         pass
 
     def setup_cb(self):
-        self.cb = Couchbase(self.host + ':' + self.port, self.username, self.password)
+        if self.cb is None:
+            self.cb = Couchbase(self.host + ':' + self.port, self.username, self.password)
 
     def test_couchbase_object_construction(self):
         cb = Couchbase(self.host + ':' + self.port, self.username,
