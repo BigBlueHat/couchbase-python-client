@@ -101,5 +101,11 @@ class CouchbaseClientTest(unittest.TestCase):
         for k, v in kvs:
             self.client.delete(k)
 
+    def test_set_integer_value(self):
+        key = str(uuid.uuid4())
+        self.client.set(key, 0, 0, 10)
+        (_, cas, value) = self.client.get(id)
+        self.assertEqual(value, 10, 'value should be the integer 10')
+
 if __name__ == '__main__':
     unittest.main()
