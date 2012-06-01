@@ -107,5 +107,26 @@ class CouchbaseClientTest(unittest.TestCase):
         (_, cas, value) = self.client.get(id)
         self.assertEqual(value, 10, 'value should be the integer 10')
 
+    def test_two_client_incr(self):
+        """http://www.couchbase.com/issues/browse/PYCBC-16"""
+        key = str(uuid.uuid4())
+        client_one = self.client
+        client_two = CouchbaseClient(self.url, self.bucket, "", True)
+        # Client one sets a numeric key
+        client_one.set(key, 0, 0, '20')
+        # Client two tries to increment this numeric key
+        (i, cas) = client_two.incr(key)
+        self.assertEqual(i, 21)
+
+        # Client two should be able to keep incrementing this key
+        (i, cas) = client_two.incr(key)
+        self.assertEqual(i, 22)
+
+        # Get's are idempotent and return type
+        (_, cas, i) = client_two.get(key)
+        self.assertEqual(i, '22')
+        (i, cas) = client_two.incr(key)
+        self.assertEqual(i, 23)
+
 if __name__ == '__main__':
     unittest.main()
